@@ -139,7 +139,7 @@
       padding: 16px;
       display: flex;
       align-items: center;
-      cursor: pointer;
+      
       transition: transform 0.2s ease, background-color 0.3s;
     }
 
@@ -187,7 +187,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: pointer;
+      
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       z-index: 1100;
       transition: transform 0.2s ease;
@@ -201,39 +201,10 @@
       font-size: 24px;
       color: white;
     }
-
-    .theme-menu {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      background-color: var(--card-background);
-      border-radius: 16px;
-      padding: 12px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      z-index: 1100;
-    }
-
-    .theme-menu.visible {
-      display: flex;
-    }
-
-    .theme-option {
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background-color 0.2s ease;
-    }
-
-    .theme-option:hover {
-      background-color: var(--accent-light);
-    }
-
-    /* Bottom Sheet Dialog styles */
+    
+    
+    
+    
     .dialog {
       display: none;
       position: fixed;
@@ -283,7 +254,7 @@
       border-radius: 20px;
       font-size: 16px;
       font-weight: 600;
-      cursor: pointer;
+      
       margin-top: 20px;
     }
 
@@ -304,10 +275,130 @@
     .modal-bg.visible {
       opacity: 1;
     }
+    
+    
+    
+    
+    
+    
+    
+    .theme-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--card-background);
+      padding: 20px;
+      z-index: 1100;
+      display: none;
+      flex-direction: column;
+      animation: slideUp 0.3s ease;
+    }
+
+    .theme-menu.visible {
+      display: flex;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .theme-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--text-secondary);
+    }
+
+    .back-button {
+      color: var(--accent-color);
+      font-size: 16px;
+      background: none;
+      border: none;
+      
+      padding: 8px 12px;
+    }
+
+    .theme-title {
+      flex-grow: 1;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin-right: 40px;
+    }
+
+    .theme-option {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      
+      position: relative;
+    }
+
+    .theme-option:active {
+      background-color: var(--accent-light);
+    }
+
+    .theme-check {
+      position: absolute;
+      right: 16px;
+      color: var(--accent-color);
+      opacity: 0;
+    }
+
+    .theme-option.selected .theme-check {
+      opacity: 1;
+    }
+
+    .view-toggle {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      margin-top: 20px;
+      border-top: 1px solid var(--text-secondary);
+    }
+
+    .view-toggle-text {
+      flex-grow: 1;
+    }
+
+    .toggle-switch {
+      width: 51px;
+      height: 31px;
+      background-color: var(--accent-color);
+      border-radius: 31px;
+      padding: 2px;
+      
+      position: relative;
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 27px;
+      height: 27px;
+      background-color: white;
+      border-radius: 50%;
+      right: 2px;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.off {
+      background-color: #8E8E93;
+    }
+
+    .toggle-switch.off::before {
+      transform: translateX(-20px);
+    }
   </style>
 </head>
 <body>
-  <header class="header">
+   <header class="header">
     <h1>Browse</h1>
     <div class="search-container">
       <span class="search-icon">🔍</span>
@@ -318,14 +409,14 @@
   <h2 class="section-title">New & Updated</h2>
   <div class="app-grid" id="appGrid">
     <div class="app-card" data-url="https://www.appstore.com/app1">
-      <img src="/api/placeholder/64/64" alt="App 1" class="app-icon">
+      <img src="https://images.sftcdn.net/images/t_app-icon-m/p/2f326aa2-507d-4f9b-8bae-f67cc94c9dee/1868939287/kawaii-animes-logo" alt="App 1" class="app-icon">
       <div class="app-info">
         <h2>Delta</h2>
         <p>Sep 19, 2023</p>
       </div>
       <span class="free-button">FREE</span>
     </div>
-    <div class="app-card" data-url="https://www.appstore.com/app2">
+    <div data-view="false" class="app-card" data-url="https://www.appstore.com/app2">
       <img src="/api/placeholder/64/64" alt="App 2" class="app-icon">
       <div class="app-info">
         <h2>AltStore</h2>
@@ -338,16 +429,41 @@
   <div class="theme-menu-toggle" id="themeMenuToggle">
     <span>🎨</span>
   </div>
-
+  
   <div class="theme-menu" id="themeMenu">
-    <div class="theme-option" data-theme="light">Light</div>
-    <div class="theme-option" data-theme="dark">Dark</div>
-    <div class="theme-option" data-theme="pink-dark">Pink Dark</div>
-    <div class="theme-option" data-theme="cream-dark">Cream Dark</div>
-    <div class="theme-option" data-theme="orange-dark">Orange Dark</div>
-  </div>
+    <div class="theme-header">
+      <button class="back-button">Cancel</button>
+      <div class="theme-title">Theme Settings</div>
+    </div>
+    
+    <div class="theme-option" data-theme="light">
+      <span>Light</span>
+      <span class="theme-check">✓</span>
+    </div>
+    <div class="theme-option" data-theme="dark">
+      <span>Dark</span>
+      <span class="theme-check">✓</span>
+    </div>
+    <div class="theme-option" data-theme="pink-dark">
+      <span>Pink Dark</span>
+      <span class="theme-check">✓</span>
+    </div>
+    <div class="theme-option" data-theme="cream-dark">
+      <span>Cream Dark</span>
+      <span class="theme-check">✓</span>
+    </div>
+    <div class="theme-option" data-theme="orange-dark">
+      <span>Orange Dark</span>
+      <span class="theme-check">✓</span>
+    </div>
 
-  <div class="modal-bg"></div>
+    <div class="view-toggle">
+      <span class="view-toggle-text">Show Hidden Apps</span>
+      <div class="toggle-switch off" id="viewToggle"></div>
+    </div>
+  </div>
+  
+   <div class="modal-bg"></div>
 
   <div class="dialog" id="appDialog">
     <div class="drag-handle"></div>
@@ -360,6 +476,7 @@
   </div>
 
   <script>
+    
     // Search functionality
 const searchInput = document.getElementById('searchInput');
 const appGrid = document.getElementById('appGrid');
@@ -494,15 +611,113 @@ appCardsArray.forEach(card => {
     const title = card.querySelector('h2').textContent;
     const img = card.querySelector('img').src;
     const date = card.querySelector('p').textContent;
+    const url = card.getAttribute('data-url');  // Extraer la URL del atributo data-url
 
+    // Actualizar el contenido del diálogo
     document.getElementById('dialogTitle').textContent = title;
     document.getElementById('dialogIcon').src = img;
     document.getElementById('dialogDate').textContent = date;
 
+    // Asignar la URL al botón de descarga
+    const downloadButton = document.querySelector('.download-button');
+    downloadButton.setAttribute('data-url', url);  // Asignar la URL al botón de descarga
+
+    // Abrir el diálogo
     openDialog();
   });
-}); 
+});
+
+// Agregar un evento al botón de descarga
+const downloadButton = document.querySelector('.download-button');
+downloadButton.addEventListener('click', function() {
+  const url = downloadButton.getAttribute('data-url');  // Obtener la URL del botón
+  if (url) {
+    window.location.href = url;  // Redirigir a la URL
+  }
+});
     
-     </script>
-</body>
-</html>
+    
+     
+    
+    
+     
+    
+    const backButton = document.querySelector('.back-button');
+    const viewToggle = document.getElementById('viewToggle');
+
+    backButton.addEventListener('click', () => {
+      themeMenu.classList.remove('visible');
+    });
+
+    // Update theme selection UI
+    function updateThemeSelection(selectedTheme) {
+      themeOptions.forEach(option => {
+        option.classList.toggle('selected', option.dataset.theme === selectedTheme);
+      });
+    }
+
+    // Initialize with current theme
+    updateThemeSelection(localStorage.getItem('appStoreTheme') || 'light');
+
+    themeOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        const theme = option.dataset.theme;
+        updateThemeSelection(theme);
+        document.documentElement.className = `${theme}-theme`;
+        localStorage.setItem('appStoreTheme', theme);
+      });
+    });
+    
+    
+    
+    
+    
+
+    // View toggle functionality
+  // Recuperar el estado guardado
+const savedState = localStorage.getItem('viewToggleState');
+
+// Verificar si el estado está guardado
+if (savedState === null) {
+  appCards.forEach(card => {
+    if (card.dataset.view === 'false') {
+      card.style.display = 'none';
+    }
+  });
+  // Guardar el estado por defecto
+  localStorage.setItem('viewToggleState', 'false');
+} else {
+  // Aplicar el estado guardado
+  const showHidden = savedState === 'true';
+  if (!showHidden) {
+    viewToggle.classList.add('off');
+  } else {
+    viewToggle.classList.remove('off');
+  }
+
+  appCards.forEach(card => {
+    if (card.dataset.view === 'false') {
+      card.style.display = showHidden ? 'flex' : 'none';
+    }
+  });
+}
+
+// Añadir el evento y guardar el estado en localStorage
+viewToggle.addEventListener('click', () => {
+  viewToggle.classList.toggle('off');
+  const showHidden = !viewToggle.classList.contains('off');
+
+  // Guardar el estado en localStorage
+  localStorage.setItem('viewToggleState', showHidden);
+
+  appCards.forEach(card => {
+    if (card.dataset.view === 'false') {
+      card.style.display = showHidden ? 'flex' : 'none';
+    }
+  });
+});
+
+    
+  </script> 
+</body>  
+</html> 
