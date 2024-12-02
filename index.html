@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Store</title>
+  <style>
+    /* Base variables */
+    :root {
+      /* Default (Light) Theme */
+      --background-color: #f5f5f7;
+      --card-background: #fff;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --accent-color: #007AFF;
+      --accent-light: rgba(0, 122, 255, 0.1);
+      --modal-bg: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Dark Theme */
+    :root.dark-theme {
+      --background-color: #1c1c1e;
+      --card-background: #2c2c2e;
+      --text-primary: #f5f5f7;
+      --text-secondary: #8e8e93;
+      --accent-color: #0A84FF;
+      --accent-light: rgba(10, 132, 255, 0.2);
+      --modal-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Pink Dark Theme */
+    :root.pink-dark-theme {
+      --background-color: #2c2c2e;
+      --card-background: #3a3a3c;
+      --text-primary: #f4b4b4;
+      --text-secondary: #b4b4b8;
+      --accent-color: #FF2D55;
+      --accent-light: rgba(255, 45, 85, 0.2);
+      --modal-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Cream Dark Theme */
+    :root.cream-dark-theme {
+      --background-color: #3c3c3e;
+      --card-background: #4a4a4c;
+      --text-primary: #f5e6d3;
+      --text-secondary: #b4b4b8;
+      --accent-color: #D4A373;
+      --accent-light: rgba(212, 163, 115, 0.2);
+      --modal-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Orange Dark Theme */
+    :root.orange-dark-theme {
+      --background-color: #2c2c2e;
+      --card-background: #3a3a3c;
+      --text-primary: #ffdd9d;
+      --text-secondary: #b4b4b8;
+      --accent-color: #FF9500;
+      --accent-light: rgba(255, 149, 0, 0.2);
+      --modal-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-primary);
+    }
+
+    .header {
+      padding: 20px;
+      background-color: var(--background-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .search-container {
+      position: relative;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 40px;
+      border-radius: 12px;
+      border: none;
+      background-color: rgba(118, 118, 128, 0.12);
+      font-size: 16px;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      background-color: rgba(118, 118, 128, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 24px 20px 16px;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .app-card {
+      background-color: var(--card-background);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s;
+    }
+
+    .app-card:hover {
+      transform: scale(1.02);
+    }
+
+    .app-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      margin-right: 16px;
+    }
+
+    .app-info h2 {
+      font-size: 18px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .app-info p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .free-button {
+      margin-left: auto;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background-color: var(--accent-light);
+      color: var(--accent-color);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Theme Menu Styles */
+    .theme-menu-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--accent-color);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1100;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-menu-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    .theme-menu-toggle span {
+      font-size: 24px;
+      color: white;
+    }
+
+    .theme-menu {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      background-color: var(--card-background);
+      border-radius: 16px;
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      z-index: 1100;
+    }
+
+    .theme-menu.visible {
+      display: flex;
+    }
+
+    .theme-option {
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+
+    .theme-option:hover {
+      background-color: var(--accent-light);
+    }
+
+    /* Bottom Sheet Dialog styles */
+    .dialog {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--card-background);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-height: 90vh;
+      z-index: 1000;
+      box-shadow: 0 -5px 40px rgba(0, 0, 0, 0.15);
+      touch-action: none;
+      transition: transform 0.2s ease;
+    }
+
+    .dialog.visible {
+      display: block;
+    }
+
+    .drag-handle {
+      width: 40px;
+      height: 4px;
+      background-color: var(--text-secondary);
+      border-radius: 2px;
+      margin: 12px auto;
+      opacity: 0.3;
+    }
+
+    .dialog-content {
+      padding: 0 24px 24px;
+      text-align: center;
+    }
+
+    .dialog-content img {
+      width: 120px;
+      height: 120px;
+      border-radius: 24px;
+      margin-bottom: 20px;
+    }
+
+    .download-button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--modal-bg);
+      backdrop-filter: blur(5px);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-bg.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Browse</h1>
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" placeholder="Search" id="searchInput">
+    </div>
+  </header>
+
+  <h2 class="section-title">New & Updated</h2>
+  <div class="app-grid" id="appGrid">
+    <div class="app-card" data-url="https://www.appstore.com/app1">
+      <img src="/api/placeholder/64/64" alt="App 1" class="app-icon">
+      <div class="app-info">
+        <h2>Delta</h2>
+        <p>Sep 19, 2023</p>
+      </div>
+      <span class="free-button">FREE</span>
+    </div>
+    <div class="app-card" data-url="https://www.appstore.com/app2">
+      <img src="/api/placeholder/64/64" alt="App 2" class="app-icon">
+      <div class="app-info">
+        <h2>AltStore</h2>
+        <p>Sep 16, 2023</p>
+      </div>
+      <span class="free-button">FREE</span>
+    </div>
+  </div>
+
+  <div class="theme-menu-toggle" id="themeMenuToggle">
+    <span>🎨</span>
+  </div>
+
+  <div class="theme-menu" id="themeMenu">
+    <div class="theme-option" data-theme="light">Light</div>
+    <div class="theme-option" data-theme="dark">Dark</div>
+    <div class="theme-option" data-theme="pink-dark">Pink Dark</div>
+    <div class="theme-option" data-theme="cream-dark">Cream Dark</div>
+    <div class="theme-option" data-theme="orange-dark">Orange Dark</div>
+  </div>
+
+  <div class="modal-bg"></div>
+
+  <div class="dialog" id="appDialog">
+    <div class="drag-handle"></div>
+    <div class="dialog-content">
+      <img src="" alt="App Icon" id="dialogIcon">
+      <h2 id="dialogTitle"></h2>
+      <p id="dialogDate"></p>
+      <button class="download-button">GET</button>
+    </div>
+  </div>
+
+  <script>
+    // Search functionality
+const searchInput = document.getElementById('searchInput');
+const appGrid = document.getElementById('appGrid');
+const appCards = document.querySelectorAll('.app-card');
+
+searchInput.addEventListener('input', (e) => {
+  const searchTerm = e.target.value.toLowerCase();
+  appCards.forEach(card => {
+    const title = card.querySelector('h2').textContent.toLowerCase();
+    card.style.display = title.includes(searchTerm) ? 'flex' : 'none';
+  });
+});
+
+// Theme Switcher
+const themeMenuToggle = document.getElementById('themeMenuToggle');
+const themeMenu = document.getElementById('themeMenu');
+const themeOptions = document.querySelectorAll('.theme-option');
+
+// Load saved theme from localStorage
+const savedTheme = localStorage.getItem('appStoreTheme') || 'light';
+document.documentElement.className = savedTheme ? `${savedTheme}-theme` : '';
+
+themeMenuToggle.addEventListener('click', () => {
+  themeMenu.classList.toggle('visible');
+});
+
+themeOptions.forEach(option => {
+  option.addEventListener('click', () => {
+    const theme = option.dataset.theme;
+    document.documentElement.className = `${theme}-theme`;
+    
+    // Save theme preference
+    localStorage.setItem('appStoreTheme', theme);
+    
+    // Close theme menu
+    themeMenu.classList.remove('visible');
+  });
+});
+
+// Close theme menu if clicked outside
+document.addEventListener('click', (e) => {
+  if (!themeMenuToggle.contains(e.target) && 
+      !themeMenu.contains(e.target) && 
+      themeMenu.classList.contains('visible')) {
+    themeMenu.classList.remove('visible');
+  }
+});
+
+// Bottom Sheet Dialog functionality
+const dialog = document.getElementById('appDialog');
+const modalBg = document.querySelector('.modal-bg');
+let startY = 0;
+let currentY = 0;
+let initialY = 0;
+
+function initDrag(e) {
+  const touch = e.type === 'touchstart' ? e.touches[0] : e;
+  startY = touch.clientY;
+  initialY = currentY;
+  
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('touchmove', drag);
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+}
+
+function drag(e) {
+  e.preventDefault();
+  const touch = e.type === 'touchmove' ? e.touches[0] : e;
+  const dragDistance = touch.clientY - startY;
+  currentY = dragDistance;
+
+  // Limit upward drag
+  if (currentY < 0) currentY = 0;
+
+  dialog.style.transform = `translateY(${currentY}px)`;
+  
+  // Update modal background opacity based on drag position
+  const dialogHeight = dialog.offsetHeight;
+  const opacity = 1 - (currentY / dialogHeight);
+  modalBg.style.opacity = opacity.toFixed(2);
+}
+
+function endDrag() {
+  const dialogHeight = dialog.offsetHeight;
+  
+  if (currentY > dialogHeight * 0.5) {
+    closeDialog();
+  } else {
+    // Snap back to original position
+    dialog.style.transform = 'translateY(0)';
+    modalBg.style.opacity = '1';
+  }
+
+  currentY = 0;
+  document.removeEventListener('mousemove', drag);
+  document.removeEventListener('touchmove', drag);
+  document.removeEventListener('mouseup', endDrag);
+  document.removeEventListener('touchend', endDrag);
+}
+
+function openDialog() {
+  dialog.classList.add('visible');
+  modalBg.style.display = 'block';
+  modalBg.style.opacity = '1';
+  setTimeout(() => {
+    modalBg.classList.add('visible');
+  }, 0);
+  dialog.style.transform = 'translateY(0)';
+}
+
+function closeDialog() {
+  const dialogHeight = dialog.offsetHeight;
+  dialog.style.transform = `translateY(${dialogHeight}px)`;
+  modalBg.classList.remove('visible');
+  
+  setTimeout(() => {
+    dialog.classList.remove('visible');
+    modalBg.style.display = 'none';
+    dialog.style.transform = '';
+  }, 200);
+}
+
+dialog.addEventListener('mousedown', initDrag);
+dialog.addEventListener('touchstart', initDrag);
+modalBg.addEventListener('click', closeDialog);
+
+// Open dialog when clicking app cards
+const appCardsArray = Array.from(document.querySelectorAll('.app-card'));
+appCardsArray.forEach(card => {
+  card.addEventListener('click', () => {
+    const title = card.querySelector('h2').textContent;
+    const img = card.querySelector('img').src;
+    const date = card.querySelector('p').textContent;
+
+    document.getElementById('dialogTitle').textContent = title;
+    document.getElementById('dialogIcon').src = img;
+    document.getElementById('dialogDate').textContent = date;
+
+    openDialog();
+  });
+}); 
+    
+     </script>
+</body>
+</html>
