@@ -9,31 +9,31 @@
     /* Base variables */
     :root {
       /* Default (Light) Theme */
-      --background-color: #f5f5f7;
-      --card-background: #fff;
-      --text-primary: #1d1d1f;
-      --text-secondary: #86868b;
-      --accent-color: #007AFF;
-      --accent-light: rgba(0, 122, 255, 0.1);
+      --background-color: #1b1b1d;
+      --card-background: #262930;
+      --text-primary: #d7d7d7;
+      --text-secondary: #999;
+      --accent-color: #87a8f3;
+      --accent-light: rgba(174, 199, 255, 0.1);
       --modal-bg: rgba(0, 0, 0, 0.5);
     }
 
     /* Dark Theme */
     :root.dark-theme {
-      --background-color: #1c1c1e;
-      --card-background: #2c2c2e;
-      --text-primary: #f5f5f7;
-      --text-secondary: #8e8e93;
-      --accent-color: #0A84FF;
-      --accent-light: rgba(10, 132, 255, 0.2);
+      --background-color: #24181a;
+      --card-background: #382529;
+      --text-primary: #ffc5d9;
+      --text-secondary: #dcc9cd;
+      --accent-color: #856161;
+      --accent-light: rgb(251, 217, 229, 0.1);
       --modal-bg: rgba(0, 0, 0, 0.7);
     }
 
     /* Pink Dark Theme */
     :root.pink-dark-theme {
-      --background-color: #2c2c2e;
-      --card-background: #3a3a3c;
-      --text-primary: #f4b4b4;
+      --background-color: #16151d;
+      --card-background: #201e29;
+      --text-primary: #fff;
       --text-secondary: #b4b4b8;
       --accent-color: #FF2D55;
       --accent-light: rgba(255, 45, 85, 0.2);
@@ -42,23 +42,23 @@
 
     /* Cream Dark Theme */
     :root.cream-dark-theme {
-      --background-color: #3c3c3e;
-      --card-background: #4a4a4c;
-      --text-primary: #f5e6d3;
+      --background-color: #111129;
+      --card-background: #1d193a;
+      --text-primary: #fff;
       --text-secondary: #b4b4b8;
-      --accent-color: #D4A373;
-      --accent-light: rgba(212, 163, 115, 0.2);
+      --accent-color: #6e4eba;
+      --accent-light: rgb(110, 78, 186, 0.1);
       --modal-bg: rgba(0, 0, 0, 0.7);
     }
 
     /* Orange Dark Theme */
     :root.orange-dark-theme {
-      --background-color: #2c2c2e;
-      --card-background: #3a3a3c;
-      --text-primary: #ffdd9d;
+      --background-color: #011c3a;
+      --card-background: #082b4b;
+      --text-primary: #68d4f1;
       --text-secondary: #b4b4b8;
-      --accent-color: #FF9500;
-      --accent-light: rgba(255, 149, 0, 0.2);
+      --accent-color: #004d61;
+      --accent-light: rgb(95, 132, 165, 0.1);
       --modal-bg: rgba(0, 0, 0, 0.7);
     }
 
@@ -67,15 +67,26 @@
       padding: 0;
       box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      transition: background-color 0.3s, color 0.3s;
+      /*transition: background-color 0.3s, color 0.3s;*/
     }
 
     body {
       background-color: var(--background-color);
       color: var(--text-primary);
       padding-top: 50px;
+      -webkit-user-select: none; 
+      -moz-user-select: none;    
+      -ms-user-select: none;     
+      user-select: none;
     }
 
+    
+    a, img {
+      pointer-events: none; 
+      -webkit-user-drag: none; 
+}
+    
+    
     .header {
       padding: 20px;
       background-color: var(--background-color);
@@ -97,12 +108,12 @@
       margin: 0 auto;
     }
 
-    .search-input {
+    .search-input {  
       width: 100%;
       padding: 12px 40px;
       border-radius: 12px;
       border: none;
-      background-color: rgba(118, 118, 128, 0.12);
+      background-color: var(--card-background);
       font-size: 16px;
       color: var(--text-primary);
       transition: all 0.3s ease;
@@ -118,7 +129,7 @@
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-secondary);
+      color: #757575;
     }
 
     .section-title {
@@ -276,8 +287,8 @@
 
     .modal-bg.visible {
       opacity: 1;
-    }
-    
+    } 
+     
     
     
     
@@ -412,7 +423,7 @@
 </head>
 <body>
    <header class="header">
-    <h1>Browse</h1>
+    <h1>Mods Store</h1>
     <div class="search-container">
       <span class="search-icon"><i class="bi bi-search"></i></span>
       <input type="text" class="search-input" placeholder="Search" id="searchInput"> 
@@ -421,6 +432,7 @@
 
   <h2 class="section-title">New & Updated</h2>
   <div class="app-grid" id="appGrid">
+    
     <div class="app-card" data-url="https://www.mediafire.com/file/pr38khouszl0uv8/Kawaii_Animes_1.1.4.apk/file">
       <img src="https://images.sftcdn.net/images/t_app-icon-m/p/2f326aa2-507d-4f9b-8bae-f67cc94c9dee/1868939287/kawaii-animes-logo" alt="App 1" class="app-icon">
       <div class="app-info">
@@ -429,10 +441,42 @@
       </div>
       <span class="free-button">FREE</span>
     </div>
-    <div data-view="false" class="app-card" data-url="https://www.mediafire.com/file/pr38khouszl0uv8/Kawaii_Animes_1.1.4.apk/file">
-      <img src="/api/placeholder/64/64" alt="App 2" class="app-icon">
+    
+    
+    <div class="app-card" data-url="https://www.appstore.com/app1">
+      <img src="https://play-lh.googleusercontent.com/bD3dDnk6xF171GWStFQUklC5_Ko3WIswArSFsYhPeSqZk_jd8EksIdNyBOScWh9ZaA=w240-h480-rw" alt="App 1" class="app-icon">
       <div class="app-info">
-        <h2>AltStore</h2>
+        <h2>Donplay</h2>
+        <p>Sep 19, 2023</p>
+      </div>
+      <span class="free-button">FREE</span>
+    </div>
+    
+    
+    <div class="app-card" data-url="https://www.appstore.com/app1">
+      <img src="https://pbs.twimg.com/profile_images/1097728195938287616/np-Wo5qA_400x400.png" alt="App 1" class="app-icon">
+      <div class="app-info">
+        <h2>Film App</h2>
+        <p>Sep 19, 2023</p>
+      </div>
+      <span class="free-button">FREE</span>
+    </div>
+    
+    
+    <div class="app-card" data-url="https://www.appstore.com/app1">
+      <img src="https://play-lh.googleusercontent.com/PoxQMoyabXhtItbDuYtxIj1A8Ii9nSIw9wxcolhexgWxTSn1yX0glJCqnn3Cb6iQ9A" alt="App 1" class="app-icon">
+      <div class="app-info">
+        <h2>JK Animes</h2>
+        <p>Sep 19, 2023</p>
+      </div>
+      <span class="free-button">FREE</span>
+    </div>
+    
+    
+    <div class="app-card" data-url="https://www.appstore.com/app2" data-view="false">
+      <img src="https://images.dwncdn.net/images/t_app-icon-l/p/2983568c-cedf-460b-876b-7fecd3eee52e/1087279447/tio-h-series-t0g-logo" alt="App 2" class="app-icon">
+      <div class="app-info">
+        <h2>TIO H</h2>
         <p>Sep 16, 2023</p>
       </div>
       <span class="free-button">FREE</span>
@@ -450,11 +494,11 @@
     </div>
     
     <div class="theme-option" data-theme="light">
-      <span>Light</span>
+      <span>Default</span>
       <span class="theme-check">✓</span>
     </div>
     <div class="theme-option" data-theme="dark">
-      <span>Dark</span>
+      <span>Dynamic</span>
       <span class="theme-check">✓</span>
     </div>
     <div class="theme-option" data-theme="pink-dark">
@@ -653,7 +697,7 @@ appCardsArray.forEach(card => {
     backButton.addEventListener('click', () => {
       themeMenu.classList.remove('visible');
     });
-
+ 
     // Update theme selection UI
     function updateThemeSelection(selectedTheme) {
       themeOptions.forEach(option => {
