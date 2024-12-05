@@ -477,6 +477,15 @@
     color: #000;
     text-align: center;
   }
+    
+    
+    
+    
+    
+    
+    
+    
+
 
   </style>
 </head>
@@ -601,8 +610,7 @@
   </div>
 
   <script>
-    
-    // Cache DOM elements and use const for better performance
+// Cache DOM elements and use const for better performance
 const DOM = {
   searchInput: document.getElementById('searchInput'),
   appGrid: document.getElementById('appGrid'),
@@ -685,7 +693,7 @@ const ThemeManager = {
     document.addEventListener('click', (e) => {
       if (!DOM.themeMenuToggle.contains(e.target) && 
           !DOM.themeMenu.contains(e.target) && 
-          !DOM.backButton.contains(e.target) &&  // Add back button check
+          !DOM.backButton.contains(e.target) &&
           DOM.themeMenu.classList.contains('visible')) {
         DOM.themeMenu.classList.remove('visible');
       }
@@ -757,27 +765,42 @@ const DialogManager = {
     document.getElementById('dialogDate').textContent = date;
     document.querySelector('.download-button').setAttribute('onclick', `window.location.href='${url}'`);
 
+    // Asegurar que el diálogo esté en su posición inicial antes de mostrarlo
+    DOM.dialog.style.transform = 'translateY(100%)';
+    
     requestAnimationFrame(() => {
       DOM.dialog.classList.add('visible');
       DOM.modalBg.style.bottom = '0';
       DOM.modalBg.style.opacity = '1';
       DOM.modalBg.classList.add('visible');
-      DOM.dialog.style.transform = 'translateY(0)';
+      
+      // Animar a la posición final después de un micro-delay
+      requestAnimationFrame(() => {
+        DOM.dialog.style.transform = 'translateY(0)';
+      });
     });
   },
 
   closeDialog() {
     const dialogHeight = DOM.dialog.offsetHeight;
+    
+    // Prevenir múltiples cierres
+    if (DOM.dialog.dataset.closing === 'true') return;
+    DOM.dialog.dataset.closing = 'true';
+
+    // Iniciar animación de cierre
     requestAnimationFrame(() => {
       DOM.dialog.style.transform = `translateY(${dialogHeight}px)`;
-      DOM.modalBg.classList.remove('visible');
+      DOM.modalBg.style.opacity = '0';
       
-      setTimeout(() => {
+      // Esperar a que termine la animación
+      DOM.dialog.addEventListener('transitionend', () => {
         DOM.dialog.classList.remove('visible');
+        DOM.modalBg.classList.remove('visible');
         DOM.modalBg.style.bottom = '-100%';
-        DOM.modalBg.style.opacity = '0';
         DOM.dialog.style.transform = '';
-      }, 200);
+        DOM.dialog.dataset.closing = 'false';
+      }, { once: true }); // El evento se elimina automáticamente después de ejecutarse
     });
   },
 
@@ -800,7 +823,7 @@ const DialogManager = {
       document.addEventListener(event, this.handleDragEnd.bind(this));
     });
 
-    DOM.modalBg.addEventListener('click', this.closeDialog.bind(this));
+    DOM.modalBg.addEventListener('click', () => this.closeDialog());
 
     // Event delegation for app cards
     DOM.appGrid.addEventListener('click', (e) => {
