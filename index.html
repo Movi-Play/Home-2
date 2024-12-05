@@ -602,267 +602,276 @@
 
   <script>
     
-    // Search functionality
-const searchInput = document.getElementById('searchInput');
-const appGrid = document.getElementById('appGrid');
-const appCards = document.querySelectorAll('.app-card');
+    // Cache DOM elements and use const for better performance
+const DOM = {
+  searchInput: document.getElementById('searchInput'),
+  appGrid: document.getElementById('appGrid'),
+  appCards: document.querySelectorAll('.app-card'),
+  themeMenuToggle: document.getElementById('themeMenuToggle'),
+  themeMenu: document.getElementById('themeMenu'),
+  themeOptions: document.querySelectorAll('.theme-option'),
+  dialog: document.getElementById('appDialog'),
+  modalBg: document.querySelector('.modal-bg'),
+  backButton: document.querySelector('.back-button'),
+  viewToggle: document.getElementById('viewToggle'),
+  loaderContainer: document.getElementById('loader-container')
+};
 
-searchInput.addEventListener('input', (e) => {
-  const searchTerm = e.target.value.toLowerCase();
-  appCards.forEach(card => {
-    const title = card.querySelector('h2').textContent.toLowerCase();
-    card.style.display = title.includes(searchTerm) ? 'flex' : 'none';
+// Debounce function to limit expensive operations
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+// Search functionality with debounce
+const handleSearch = debounce((searchTerm) => {
+  const term = searchTerm.toLowerCase();
+  requestAnimationFrame(() => {
+    DOM.appCards.forEach(card => {
+      const title = card.querySelector('h2').textContent.toLowerCase();
+      card.style.display = title.includes(term) ? 'flex' : 'none';
+    });
   });
-});
+}, 150);
 
-// Theme Switcher
-const themeMenuToggle = document.getElementById('themeMenuToggle');
-const themeMenu = document.getElementById('themeMenu');
-const themeOptions = document.querySelectorAll('.theme-option');
+DOM.searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
 
-// Load saved theme from localStorage
-const savedTheme = localStorage.getItem('appStoreTheme') || 'light';
-document.documentElement.className = savedTheme ? `${savedTheme}-theme` : '';
+// Theme management
+const ThemeManager = {
+  init() {
+    const savedTheme = localStorage.getItem('appStoreTheme') || 'light';
+    this.applyTheme(savedTheme);
+    this.attachListeners();
+    
+    // Add back button functionality
+    DOM.backButton.addEventListener('click', () => {
+      DOM.themeMenu.classList.remove('visible');
+    });
+  },
 
-themeMenuToggle.addEventListener('click', () => {
-  themeMenu.classList.toggle('visible');
-});
-
-themeOptions.forEach(option => {
-  option.addEventListener('click', () => {
-    const theme = option.dataset.theme;
+  applyTheme(theme) {
     document.documentElement.className = `${theme}-theme`;
-    
-    // Save theme preference
-    localStorage.setItem('appStoreTheme', theme);
-    
-    // Close theme menu
-    themeMenu.classList.remove('visible');
-  });
-});
+    this.updateSelection(theme);
+  },
 
-// Close theme menu if clicked outside
-document.addEventListener('click', (e) => {
-  if (!themeMenuToggle.contains(e.target) && 
-      !themeMenu.contains(e.target) && 
-      themeMenu.classList.contains('visible')) {
-    themeMenu.classList.remove('visible');
+  updateSelection(selectedTheme) {
+    DOM.themeOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.theme === selectedTheme);
+    });
+  },
+
+  attachListeners() {
+    DOM.themeMenuToggle.addEventListener('click', () => {
+      DOM.themeMenu.classList.toggle('visible');
+    });
+
+    DOM.themeOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        const theme = option.dataset.theme;
+        this.applyTheme(theme);
+        localStorage.setItem('appStoreTheme', theme);
+        DOM.themeMenu.classList.remove('visible');
+      });
+    });
+
+    // Use event delegation for better performance
+    document.addEventListener('click', (e) => {
+      if (!DOM.themeMenuToggle.contains(e.target) && 
+          !DOM.themeMenu.contains(e.target) && 
+          !DOM.backButton.contains(e.target) &&  // Add back button check
+          DOM.themeMenu.classList.contains('visible')) {
+        DOM.themeMenu.classList.remove('visible');
+      }
+    });
   }
-});
+};
 
-// Bottom Sheet Dialog functionality
-const dialog = document.getElementById('appDialog');
-const modalBg = document.querySelector('.modal-bg');
-let startY = 0;
-let currentY = 0;
-let initialY = 0;
+// Dialog management with improved touch handling
+const DialogManager = {
+  dragState: {
+    startY: 0,
+    currentY: 0,
+    initialY: 0,
+    isDragging: false
+  },
 
-function initDrag(e) {
-  const touch = e.type === 'touchstart' ? e.touches[0] : e;
-  startY = touch.clientY;
-  initialY = currentY;
-  
-  document.addEventListener('mousemove', drag);
-  document.addEventListener('touchmove', drag);
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
-}
+  init() {
+    this.attachListeners();
+  },
 
-function drag(e) {
-  e.preventDefault();
-  const touch = e.type === 'touchmove' ? e.touches[0] : e;
-  const dragDistance = touch.clientY - startY;
-  currentY = dragDistance;
+  handleDragStart(e) {
+    const touch = e.type === 'touchstart' ? e.touches[0] : e;
+    this.dragState = {
+      startY: touch.clientY,
+      currentY: 0,
+      initialY: 0,
+      isDragging: true
+    };
+  },
 
-  // Limit upward drag
-  if (currentY < 0) currentY = 0;
+  handleDrag(e) {
+    if (!this.dragState.isDragging) return;
+    
+    e.preventDefault();
+    const touch = e.type === 'touchmove' ? e.touches[0] : e;
+    const dragDistance = touch.clientY - this.dragState.startY;
+    this.dragState.currentY = Math.max(0, dragDistance);
 
-  dialog.style.transform = `translateY(${currentY}px)`;
-  
-  // Update modal background opacity based on drag position
-  const dialogHeight = dialog.offsetHeight;
-  const opacity = 1 - (currentY / dialogHeight);
-  modalBg.style.opacity = opacity.toFixed(2);
-}
+    requestAnimationFrame(() => {
+      DOM.dialog.style.transform = `translateY(${this.dragState.currentY}px)`;
+      const dialogHeight = DOM.dialog.offsetHeight;
+      const opacity = 1 - (this.dragState.currentY / dialogHeight);
+      DOM.modalBg.style.opacity = opacity.toFixed(2);
+    });
+  },
 
-function endDrag() {
-  const dialogHeight = dialog.offsetHeight;
-  
-  if (currentY > dialogHeight * 0.5) {
-    closeDialog();
-  } else {
-    // Snap back to original position
-    dialog.style.transform = 'translateY(0)';
-    modalBg.style.opacity = '1';
-  }
+  handleDragEnd() {
+    if (!this.dragState.isDragging) return;
+    
+    const dialogHeight = DOM.dialog.offsetHeight;
+    if (this.dragState.currentY > dialogHeight * 0.5) {
+      this.closeDialog();
+    } else {
+      this.snapBack();
+    }
+    this.dragState.isDragging = false;
+  },
 
-  currentY = 0;
-  document.removeEventListener('mousemove', drag);
-  document.removeEventListener('touchmove', drag);
-  document.removeEventListener('mouseup', endDrag);
-  document.removeEventListener('touchend', endDrag);
-}
+  snapBack() {
+    requestAnimationFrame(() => {
+      DOM.dialog.style.transform = 'translateY(0)';
+      DOM.modalBg.style.opacity = '1';
+    });
+  },
 
-function openDialog() {
-  dialog.classList.add('visible');
-  modalBg.style.bottom = '0';
-  modalBg.style.opacity = '1';
-  setTimeout(() => {
-    modalBg.classList.add('visible');
-  }, 0);
-  dialog.style.transform = 'translateY(0)';
-}
- 
-function closeDialog() {
-  const dialogHeight = dialog.offsetHeight;
-  dialog.style.transform = `translateY(${dialogHeight}px)`;
-  modalBg.classList.remove('visible');
-  
-  setTimeout(() => {
-    dialog.classList.remove('visible');
-    modalBg.style.bottom = '-100%';
-    modalBg.style.opacity = '0';
-    dialog.style.transform = '';
-  }, 200);
-}
-
-dialog.addEventListener('mousedown', initDrag);
-dialog.addEventListener('touchstart', initDrag);
-modalBg.addEventListener('click', closeDialog) ;
-
-// Open dialog when clicking app cards
-const appCardsArray = Array.from(document.querySelectorAll('.app-card'));
-appCardsArray.forEach(card => {
-  card.addEventListener('click', () => {
-    const title = card.querySelector('h2').textContent;
-    const img = card.querySelector('img').src;
-    const date = card.querySelector('p').textContent;
-    const url = card.getAttribute('data-url');  // Extraer la URL del atributo data-url
-
-    // Actualizar el contenido del diálogo
+  openDialog(title, img, date, url) {
     document.getElementById('dialogTitle').textContent = title;
     document.getElementById('dialogIcon').src = img;
     document.getElementById('dialogDate').textContent = date;
+    document.querySelector('.download-button').setAttribute('onclick', `window.location.href='${url}'`);
 
-    // Asignar la URL al botón de descarga en formato onclick
-    const downloadButton = document.querySelector('.download-button');
-    downloadButton.setAttribute('onclick', `window.location.href='${url}'`);  // Asignar la URL al onclick del botón
-
-    // Abrir el diálogo
-    openDialog();
-  });
-});
-    
-    
-     
-    
-    
-     
-    
-    const backButton = document.querySelector('.back-button');
-    const viewToggle = document.getElementById('viewToggle');
-
-    backButton.addEventListener('click', () => {
-      themeMenu.classList.remove('visible');
+    requestAnimationFrame(() => {
+      DOM.dialog.classList.add('visible');
+      DOM.modalBg.style.bottom = '0';
+      DOM.modalBg.style.opacity = '1';
+      DOM.modalBg.classList.add('visible');
+      DOM.dialog.style.transform = 'translateY(0)';
     });
- 
-    // Update theme selection UI
-    function updateThemeSelection(selectedTheme) {
-      themeOptions.forEach(option => {
-        option.classList.toggle('selected', option.dataset.theme === selectedTheme);
-      });
-    }
+  },
 
-    // Initialize with current theme
-    updateThemeSelection(localStorage.getItem('appStoreTheme') || 'light');
-
-    themeOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        const theme = option.dataset.theme;
-        updateThemeSelection(theme);
-        document.documentElement.className = `${theme}-theme`;
-        localStorage.setItem('appStoreTheme', theme);
-      });
+  closeDialog() {
+    const dialogHeight = DOM.dialog.offsetHeight;
+    requestAnimationFrame(() => {
+      DOM.dialog.style.transform = `translateY(${dialogHeight}px)`;
+      DOM.modalBg.classList.remove('visible');
+      
+      setTimeout(() => {
+        DOM.dialog.classList.remove('visible');
+        DOM.modalBg.style.bottom = '-100%';
+        DOM.modalBg.style.opacity = '0';
+        DOM.dialog.style.transform = '';
+      }, 200);
     });
-    
-    
-    
-    
-    
+  },
 
-    // View toggle functionality
-  // Recuperar el estado guardado
-const savedState = localStorage.getItem('viewToggleState');
+  attachListeners() {
+    const dragEvents = {
+      start: ['mousedown', 'touchstart'],
+      move: ['mousemove', 'touchmove'],
+      end: ['mouseup', 'touchend']
+    };
 
-// Verificar si el estado está guardado
-if (savedState === null) {
-  appCards.forEach(card => {
-    if (card.dataset.view === 'false') {
-      card.style.display = 'none';
-    }
-  });
-  // Guardar el estado por defecto
-  localStorage.setItem('viewToggleState', 'false');
-} else {
-  // Aplicar el estado guardado
-  const showHidden = savedState === 'true';
-  if (!showHidden) {
-    viewToggle.classList.add('off');
-  } else {
-    viewToggle.classList.remove('off');
+    dragEvents.start.forEach(event => {
+      DOM.dialog.addEventListener(event, this.handleDragStart.bind(this), { passive: true });
+    });
+
+    dragEvents.move.forEach(event => {
+      document.addEventListener(event, this.handleDrag.bind(this));
+    });
+
+    dragEvents.end.forEach(event => {
+      document.addEventListener(event, this.handleDragEnd.bind(this));
+    });
+
+    DOM.modalBg.addEventListener('click', this.closeDialog.bind(this));
+
+    // Event delegation for app cards
+    DOM.appGrid.addEventListener('click', (e) => {
+      const card = e.target.closest('.app-card');
+      if (!card) return;
+
+      const title = card.querySelector('h2').textContent;
+      const img = card.querySelector('img').src;
+      const date = card.querySelector('p').textContent;
+      const url = card.getAttribute('data-url');
+      this.openDialog(title, img, date, url);
+    });
   }
+};
 
-  appCards.forEach(card => {
-    if (card.dataset.view === 'false') {
-      if (showHidden) {
-      card.classList.remove('hide');  
-    } else {
-      card.classList.add('hide'); 
-    }
-    } 
-  });
-}
+// View toggle with improved state management
+const ViewController = {
+  init() {
+    const savedState = localStorage.getItem('viewToggleState') || 'false';
+    this.updateView(savedState === 'true');
+    this.attachListeners();
+  },
 
-// Añadir el evento y guardar el estado en localStorage
-viewToggle.addEventListener('click', () => {
-  viewToggle.classList.toggle('off');
-  const showHidden = !viewToggle.classList.contains('off');
+  updateView(showHidden) {
+    requestAnimationFrame(() => {
+      DOM.viewToggle.classList.toggle('off', !showHidden);
+      DOM.appCards.forEach(card => {
+        if (card.dataset.view === 'false') {
+          card.classList.toggle('hide', !showHidden);
+        }
+      });
+    });
+  },
 
-  // Guardar el estado en localStorage
-  localStorage.setItem('viewToggleState', showHidden);
+  attachListeners() {
+    DOM.viewToggle.addEventListener('click', () => {
+      const showHidden = DOM.viewToggle.classList.contains('off');
+      localStorage.setItem('viewToggleState', showHidden);
+      this.updateView(showHidden);
+    });
+  }
+};
 
-  appCards.forEach(card => {
-    if (card.dataset.view === 'false') {
-      if (showHidden) {
-      card.classList.remove('hide');  
-    } else {
-      card.classList.add('hide'); 
-    }
-    }
-  }); 
-});
+// Loader with guaranteed minimum display time
+const LoaderManager = {
+  init() {
+    const startTime = Date.now();
+    const minDisplayTime = 3000;
 
-    
-    
-    window.addEventListener("load", function() {
-    var loaderContainer = document.getElementById("loader-container");
-    var startTime = Date.now(); // Marca el inicio del tiempo de carga
+    window.addEventListener('load', () => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
 
-    // Función para manejar el tiempo mínimo y la carga completa
-    function hideLoader() {
-      var elapsedTime = Date.now() - startTime; // Tiempo transcurrido
-      var remainingTime = Math.max(0, 3000 - elapsedTime); // Tiempo restante para completar 5 segundos 
-  
-      setTimeout(function() {
-        document.body.style.overflow = "auto"; // Habilita el scroll
-         loaderContainer.classList.add('visible'); // Oculta el loader
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          document.body.style.overflow = 'auto';
+          DOM.loaderContainer.classList.add('visible');
+        });
       }, remainingTime);
-    }
+    });
+  }
+};
 
-    // Llama a la función de ocultar loader
-    hideLoader();
-  });
-    
+// Initialize all components
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  DialogManager.init();
+  ViewController.init();
+  LoaderManager.init();
+});
+  
   </script> 
 </body>  
 </html> 
